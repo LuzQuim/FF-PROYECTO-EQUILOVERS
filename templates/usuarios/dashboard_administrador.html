@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Administrador - Equilovers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-purple-50 to-purple-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-purple-600">Equilovers - Administrador</h1>
+                <div class="flex items-center space-x-4">
+                    {% if roles.count > 1 %}
+                    <div class="relative">
+                        <select onchange="window.location.href='/cambiar-rol/' + this.value" 
+                                class="bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-purple-500">
+                            {% for rol in roles %}
+                            <option value="{{ rol.nombre }}" {% if rol.nombre == rol_activo %}selected{% endif %}>{{ rol.get_nombre_display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <span class="text-gray-700">👋 <strong>{{user.first_name|default:user.username}}</strong></span>
+                    <form method="POST" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-16">
+        {% if messages %}
+        <div class="max-w-7xl mx-auto mb-6">
+            {% for message in messages %}
+            <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded shadow-md">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="bg-white rounded-2xl shadow-2xl max-w-6xl mx-auto p-8">
+            <div class="text-center mb-8">
+                <div class="inline-block p-4 bg-purple-100 rounded-full mb-4">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/>
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/>
+                    </svg>
+                </div>
+                <h1 class="text-4xl font-bold text-gray-800 mb-2">Panel de Administración</h1>
+                <p class="text-xl text-gray-600"><span class="font-semibold text-purple-600">{{user.first_name|default:user.username}}</span></p>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mt-8">
+                <a href="{% url 'admin_usuarios' %}" class="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg shadow cursor-pointer hover:shadow-xl transition transform hover:-translate-y-1">
+                    <div class="text-center">
+                        <div class="text-5xl mb-3">👥</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Gestión de Usuarios</h3>
+                        <p class="text-gray-600 text-sm">Crear, editar y eliminar usuarios</p>
+                    </div>
+                </a>
+
+                <a href="{% url 'admin_caballos' %}" class="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg shadow cursor-pointer hover:shadow-xl transition transform hover:-translate-y-1">
+                    <div class="text-center">
+                        <div class="text-5xl mb-3">🐴</div>
+                        <h3 class="text-xl font-semibold text-gray-800 mb-2">Gestión de Caballos</h3>
+                        <p class="text-gray-600 text-sm">Administrar caballos e historial</p>
+                    </div>
+                </a>
+            </div>
+
+            <div class="mt-8 text-center">
+                <a href="{% url 'home' %}" class="bg-purple-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-purple-700 transition inline-block">
+                    🏠 Ir al Inicio
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

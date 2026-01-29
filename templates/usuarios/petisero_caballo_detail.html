@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ caballo.nombre }} - Petisero</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-orange-600">Equilovers</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-orange-600">← Volver</a>
+                    <span class="text-gray-700"><strong>{{user.first_name|default:user.username}}</strong></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% elif message.tags == 'warning' %}bg-yellow-100 border-l-4 border-yellow-500 text-yellow-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded mb-6">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ caballo.nombre }}</h2>
+                    <p class="text-gray-600">{{ caballo.raza|default:"Sin raza especificada" }}</p>
+                </div>
+                <div class="text-6xl">🐴</div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Edad</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.edad }} años</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Color</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.color|default:"N/A" }}</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Propietario</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.propietario.first_name|default:caballo.propietario.username }}</p>
+                </div>
+                <div class="bg-orange-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Registro</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.fecha_registro|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                {% if tareas %}
+                <div class="bg-green-100 text-green-700 px-6 py-3 rounded-lg font-semibold">
+                    ✓ Tareas de hoy completadas
+                </div>
+                {% else %}
+                <a href="{% url 'petisero_checklist' caballo.id %}" class="bg-orange-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
+                    ➕ Registrar Tareas del Día
+                </a>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="grid md:grid-cols-2 gap-6">
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Historial Médico</h3>
+
+                {% if controles %}
+                <div class="space-y-4 max-h-96 overflow-y-auto">
+                    {% for control in controles %}
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="mb-3">
+                            <p class="text-sm font-semibold text-gray-800">{{ control.fecha|date:"d/m/Y - H:i" }}</p>
+                            <p class="text-xs text-gray-600">Dr. {{ control.veterinario.first_name|default:control.veterinario.username }}</p>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-3 mb-3">
+                            <div class="bg-blue-50 p-2 rounded">
+                                <p class="text-xs text-gray-600">Peso</p>
+                                <p class="text-sm font-semibold">{{ control.peso }} kg</p>
+                            </div>
+                            <div class="bg-purple-50 p-2 rounded">
+                                <p class="text-xs text-gray-600">Condición</p>
+                                <p class="text-sm font-semibold">{{ control.condicion_corporal }}/9</p>
+                            </div>
+                        </div>
+
+                        <div class="mb-2">
+                            <p class="text-xs font-semibold text-gray-700">Alimentación:</p>
+                            <p class="text-xs text-gray-600">{{ control.alimentacion|truncatewords:15 }}</p>
+                        </div>
+
+                        {% if control.observaciones %}
+                        <div class="bg-yellow-50 p-2 rounded">
+                            <p class="text-xs font-semibold text-gray-700">Observaciones:</p>
+                            <p class="text-xs text-gray-600">{{ control.observaciones|truncatewords:15 }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <div class="text-4xl mb-3">📋</div>
+                    <p class="text-gray-600">Sin historial médico</p>
+                </div>
+                {% endif %}
+            </div>
+
+            <div class="bg-white rounded-lg shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-6">Registro de Tareas</h3>
+
+                {% if caballo.tareas_petisero.all %}
+                <div class="space-y-4 max-h-96 overflow-y-auto">
+                    {% for tarea in caballo.tareas_petisero.all %}
+                    <div class="border border-gray-200 rounded-lg p-4">
+                        <div class="mb-3">
+                            <p class="text-sm font-semibold text-gray-800">{{ tarea.fecha|date:"d/m/Y" }}</p>
+                            <p class="text-xs text-gray-600">{{ tarea.petisero.first_name|default:tarea.petisero.username }}</p>
+                        </div>
+
+                        <div class="space-y-2">
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.limpieza_cascos %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.limpieza_cascos %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Limpieza de cascos</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.revision_herraduras %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.revision_herraduras %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Revisión de herraduras</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.tratamiento_cascos %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.tratamiento_cascos %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Tratamiento de cascos</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.aplicacion_aceite %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.aplicacion_aceite %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Aplicación de aceite</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.revision_herraje %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.revision_herraje %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Revisión de herraje</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.medicacion %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.medicacion %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Medicación</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.limpieza_heridas %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.limpieza_heridas %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Limpieza de heridas</span>
+                            </div>
+                            <div class="flex items-center gap-2">
+                                <span class="{% if tarea.ejercicios_prescritos %}text-green-600{% else %}text-gray-400{% endif %}">
+                                    {% if tarea.ejercicios_prescritos %}✓{% else %}✗{% endif %}
+                                </span>
+                                <span class="text-xs text-gray-700">Ejercicios prescritos</span>
+                            </div>
+                        </div>
+
+                        {% if tarea.observaciones %}
+                        <div class="bg-yellow-50 p-2 rounded mt-3">
+                            <p class="text-xs font-semibold text-gray-700">Observaciones:</p>
+                            <p class="text-xs text-gray-600">{{ tarea.observaciones }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-8">
+                    <div class="text-4xl mb-3">📝</div>
+                    <p class="text-gray-600 mb-4">Sin tareas registradas</p>
+                    <a href="{% url 'petisero_checklist' caballo.id %}" class="inline-block bg-orange-600 text-white px-4 py-2 rounded-lg font-semibold hover:bg-orange-700 transition">
+                        Registrar primera tarea
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</body>
+</html>

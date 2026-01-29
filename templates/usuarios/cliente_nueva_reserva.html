@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nueva Reserva - Equilovers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-blue-600">Nueva Reserva</h1>
+                <a href="{% url 'cliente_reservas' %}" class="text-gray-700 hover:text-blue-600">← Cancelar</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="max-w-2xl mx-auto mb-6">
+            <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded">
+                {{ message }}
+            </div>
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-lg max-w-2xl mx-auto p-8">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">📅</div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Reservar Clase de Entrenamiento</h2>
+                <p class="text-gray-600">Completa los datos para tu reserva</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Entrenador <span class="text-red-500">*</span>
+                    </label>
+                    <select name="entrenador" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccionar entrenador...</option>
+                        {% for entrenador in entrenadores %}
+                        <option value="{{ entrenador.id }}">{{ entrenador.first_name|default:entrenador.username }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Caballo <span class="text-red-500">*</span>
+                    </label>
+                    <select name="caballo" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccionar caballo...</option>
+                        {% for caballo in caballos %}
+                        <option value="{{ caballo.id }}">{{ caballo.nombre }} - {{ caballo.raza|default:"Sin raza" }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Fecha <span class="text-red-500">*</span>
+                    </label>
+                    <input type="date" name="fecha" required min="{{ today }}" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Horario <span class="text-red-500">*</span>
+                    </label>
+                    <select name="horario" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccionar horario...</option>
+                        {% for inicio, fin in horarios %}
+                        <option value="{{ inicio }}-{{ fin }}">{{ inicio }} - {{ fin }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Tipo <span class="text-red-500">*</span>
+                    </label>
+                    <select name="tipo_entrenamiento" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500">
+                        <option value="">Seleccionar tipo...</option>
+                        <option value="Entrenamiento">Entrenamiento</option>
+                        <option value="Terapia">Terapia</option>
+                        <option value="Clase de Equitación">Clase de Equitación</option>
+                        <option value="Paseos Guiado">Paseos Guiado</option>
+                    </select>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+                    <p class="text-sm text-yellow-700">
+                        <strong>Nota:</strong> Verifica que el horario esté disponible con el entrenador seleccionado.
+                    </p>
+                </div>
+
+                <div class="flex gap-4">
+                    <a href="{% url 'cliente_reservas' %}" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="flex-1 bg-blue-600 text-white py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                        Confirmar Reserva
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const today = new Date().toISOString().split('T')[0];
+        document.querySelector('input[type="date"]').setAttribute('min', today);
+    </script>
+</body>
+</html>

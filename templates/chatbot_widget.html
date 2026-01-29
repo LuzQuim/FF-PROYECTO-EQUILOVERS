@@ -1,0 +1,246 @@
+<style>
+.chat-bubble {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #1a5f7a;
+    color: #fff;
+    font-size: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    box-shadow: 0 0 12px rgba(0,0,0,0.4);
+    transition: 0.3s;
+    z-index: 1000;
+}
+
+.chat-bubble:hover {
+    background: #144c61;
+}
+
+.chat-container {
+    position: fixed;
+    bottom: 110px;
+    right: 20px;
+    width: 360px;
+    height: 520px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(4px);
+    box-shadow: 0 0 18px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    opacity: 0;
+    transform: scale(0.8);
+    pointer-events: none;
+    transition: 0.4s ease;
+    overflow: hidden;
+}
+
+.chat-container.active {
+    opacity: 1;
+    transform: scale(1);
+    pointer-events: auto;
+}
+
+.chat-header {
+    background: #1a5f7a;
+    color: white;
+    padding: 12px;
+    display: flex;
+    align-items: center;
+    font-weight: bold;
+    font-size: 16px;
+    position: relative;
+}
+
+.chat-header img {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    margin-right: 10px;
+    border: 2px solid white;
+}
+
+.close-btn {
+    position: absolute;
+    right: 12px;
+    top: 10px;
+    cursor: pointer;
+    background: none;
+    border: none;
+    font-size: 18px;
+    color: white;
+}
+
+.quick-buttons {
+    padding: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    background: #eef7ff;
+    border-bottom: 1px solid #ccc;
+}
+
+.quick-buttons button {
+    background: #1a5f7a;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.quick-buttons button:hover {
+    background: #144c61;
+}
+
+.messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    font-size: 14px;
+    background: #f9f9f9;
+}
+
+.message {
+    max-width: 75%;
+    padding: 10px;
+    border-radius: 10px;
+    margin-bottom: 12px;
+    background: rgba(255,255,255,0.85);
+    word-wrap: break-word;
+}
+
+.user { 
+    background: #c4e3ff; 
+    margin-left: auto; 
+}
+
+.bot { 
+    background: #e4e4e4; 
+    margin-right: auto; 
+}
+
+.input-area {
+    display: flex;
+    background: white;
+    border-top: 1px solid #ccc;
+}
+
+.input-area input {
+    flex: 1;
+    padding: 12px;
+    border: none;
+    outline: none;
+    font-size: 14px;
+}
+
+.input-area button {
+    padding: 12px 14px;
+    background: #1a5f7a;
+    color: white;
+    border: none;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.input-area button:hover {
+    background: #144c61;
+}
+</style>
+
+<div class="chat-bubble" id="chatToggle">🐴</div>
+
+<div class="chat-container" id="chatContainer">
+    <div class="chat-header">
+        <img src="https://cdn-icons-png.flaticon.com/512/15179/15179998.png" alt="horse avatar">
+        EquiBot • Santuario Equilovers
+        <button class="close-btn" id="closeChat">✖</button>
+    </div>
+
+    <div class="quick-buttons">
+        <button onclick="quickAsk('¿Cuál es la edad de los caballos?')">Edad Caballos</button>
+        <button onclick="quickAsk('Historia del polo')">Polo</button>
+        <button onclick="quickAsk('¿Qué es la equitación?')">Equitación</button>
+        <button onclick="quickAsk('Información del salto ecuestre')">Salto</button>
+        <button onclick="quickAsk('¿Qué es la chalanería?')">Chalanería</button>
+        <button onclick="quickAsk('¿Cómo reservar una clase?')">Reservar</button>
+        <button onclick="quickAsk('Horario de clases')">Horarios</button>
+        <button onclick="quickAsk('¿Cómo apadrinar un caballo?')">Apadrinar</button>
+    </div>
+
+    <div class="messages" id="messages"></div>
+
+    <div class="input-area">
+        <input id="userInput" type="text" placeholder="Pregúntame algo..." />
+        <button id="sendBtn">Enviar</button>
+    </div>
+</div>
+
+<script>
+    const chatToggle = document.getElementById("chatToggle");
+    const chatContainer = document.getElementById("chatContainer");
+    const closeChat = document.getElementById("closeChat");
+    const messages = document.getElementById("messages");
+    const userInput = document.getElementById("userInput");
+    const sendBtn = document.getElementById("sendBtn");
+
+    function addMessage(text, sender) {
+        const div = document.createElement("div");
+        div.classList.add("message", sender);
+        div.textContent = text;
+        messages.appendChild(div);
+        messages.scrollTop = messages.scrollHeight;
+    }
+
+    function quickAsk(text) {
+        addMessage(text, "user");
+        setTimeout(() => addMessage(botResponse(text), "bot"), 300);
+    }
+
+    function botResponse(msg) {
+        msg = msg.toLowerCase();
+
+        if (msg.includes("edad")) return "Los caballos viven entre 25 y 30 años.";
+        if (msg.includes("polo")) return "El polo se originó en Persia hace más de 2.500 años.";
+        if (msg.includes("equitación")) return "La equitación es el arte y disciplina de montar a caballo.";
+        if (msg.includes("salto")) return "El salto ecuestre consiste en superar obstáculos sin derribarlos.";
+        if (msg.includes("chalan")) return "La chalanería es una tradición ecuestre colombiana.";
+        if (msg.includes("reservar")) return "Puedes reservar clases iniciando sesión en tu cuenta o contactándonos.";
+        if (msg.includes("horario")) return "Abrimos de lunes a sábado, de 7 AM a 6 PM.";
+        if (msg.includes("apadrinar")) return "Puedes apadrinar un caballo con una cuota mensual. Contáctanos para más información.";
+        if (msg.includes("caballo")) return "¿Quieres saber sobre razas, cuidados o alimentación?";
+        if (msg.includes("precio") || msg.includes("costo")) return "Los precios varían según el tipo de clase. Contáctanos para información detallada.";
+        if (msg.includes("ubicación") || msg.includes("dónde")) return "Estamos ubicados en Bogotá. Contáctanos para direcciones exactas.";
+
+        return "Puedo ayudarte con temas ecuestres, clases, horarios y más. ¿Qué deseas saber?";
+    }
+
+    function sendMessage() {
+        const text = userInput.value.trim();
+        if (!text) return;
+
+        addMessage(text, "user");
+        userInput.value = "";
+
+        setTimeout(() => addMessage(botResponse(text), "bot"), 300);
+    }
+
+    chatToggle.addEventListener("click", () => chatContainer.classList.add("active"));
+    closeChat.addEventListener("click", () => chatContainer.classList.remove("active"));
+    sendBtn.addEventListener("click", sendMessage);
+
+    userInput.addEventListener("keypress", (e) => {
+        if (e.key === "Enter") sendMessage();
+    });
+
+    addMessage("Hola, soy EquiBot 🐴💬 ¿Qué deseas saber hoy?", "bot");
+</script>

@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mi Agenda - Equilovers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-teal-50 to-teal-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-teal-600">Mi Agenda</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-teal-600">← Volver</a>
+                    <span class="text-gray-700"><strong>{{user.first_name|default:user.username}}</strong></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded mb-6">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Clases Programadas</h2>
+                <div class="flex gap-2">
+                    <a href="?filtro=todas" class="px-4 py-2 rounded-lg {% if filtro == 'todas' %}bg-teal-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %}">Todas</a>
+                    <a href="?filtro=pendientes" class="px-4 py-2 rounded-lg {% if filtro == 'pendientes' %}bg-yellow-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %}">Pendientes</a>
+                    <a href="?filtro=completadas" class="px-4 py-2 rounded-lg {% if filtro == 'completadas' %}bg-green-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %}">Completadas</a>
+                    <a href="?filtro=canceladas" class="px-4 py-2 rounded-lg {% if filtro == 'canceladas' %}bg-red-600 text-white{% else %}bg-gray-200 text-gray-700{% endif %}">Canceladas</a>
+                </div>
+            </div>
+
+            {% if clases %}
+            <div class="space-y-4">
+                {% for clase in clases %}
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="text-4xl">🐴</div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">{{ clase.caballo.nombre }}</h3>
+                                    <p class="text-sm text-gray-600">{{ clase.tipo_entrenamiento }}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 mb-3">
+                                <div class="bg-blue-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Fecha</p>
+                                    <p class="text-sm font-semibold">{{ clase.fecha|date:"d/m/Y" }}</p>
+                                </div>
+                                <div class="bg-purple-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Horario</p>
+                                    <p class="text-sm font-semibold">{{ clase.hora_inicio|time:"H:i" }} - {{ clase.hora_fin|time:"H:i" }}</p>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Cliente</p>
+                                    <p class="text-sm font-semibold">{{ clase.cliente.first_name|default:clase.cliente.username }}</p>
+                                </div>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Estado</p>
+                                    <p class="text-sm font-semibold">
+                                        {% if clase.estado == 'pendiente' %}
+                                        <span class="text-yellow-700">⏳ Pendiente</span>
+                                        {% elif clase.estado == 'completada' %}
+                                        <span class="text-green-700">✓ Completada</span>
+                                        {% else %}
+                                        <span class="text-red-700">✗ Cancelada</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {% if clase.observaciones %}
+                            <div class="bg-gray-50 p-3 rounded">
+                                <p class="text-xs font-semibold text-gray-700">Observaciones:</p>
+                                <p class="text-sm text-gray-600">{{ clase.observaciones }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if clase.estado == 'pendiente' %}
+                        <div class="flex flex-col gap-2 ml-4">
+                            <a href="{% url 'entrenador_clase_completar' clase.id %}" class="bg-green-500 text-white px-4 py-2 rounded text-sm hover:bg-green-600 transition whitespace-nowrap">Completar</a>
+                            <a href="{% url 'entrenador_clase_reprogramar' clase.id %}" class="bg-blue-500 text-white px-4 py-2 rounded text-sm hover:bg-blue-600 transition whitespace-nowrap">Reprogramar</a>
+                            <a href="{% url 'entrenador_clase_cancelar' clase.id %}" class="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 transition whitespace-nowrap">Cancelar</a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="text-6xl mb-4">📅</div>
+                <p class="text-gray-600 text-lg">No hay clases {{ filtro }}</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

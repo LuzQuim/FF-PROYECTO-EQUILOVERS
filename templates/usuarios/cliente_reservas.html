@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mis Reservas - Equilovers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-blue-50 to-blue-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-blue-600">Mis Reservas</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-blue-600">← Volver</a>
+                    <span class="text-gray-700"><strong>{{user.first_name|default:user.username}}</strong></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded mb-6">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-2xl font-bold text-gray-800">Mis Clases</h2>
+                <a href="{% url 'cliente_nueva_reserva' %}" class="bg-green-600 text-white px-6 py-2 rounded-lg hover:bg-green-700 transition font-semibold">
+                    ➕ Nueva Reserva
+                </a>
+            </div>
+
+            {% if reservas %}
+            <div class="space-y-4">
+                {% for reserva in reservas %}
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
+                    <div class="flex justify-between items-start">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-3 mb-3">
+                                <div class="text-4xl">🐴</div>
+                                <div>
+                                    <h3 class="text-xl font-bold text-gray-800">{{ reserva.caballo.nombre }}</h3>
+                                    <p class="text-sm text-gray-600">{{ reserva.tipo_entrenamiento }}</p>
+                                </div>
+                            </div>
+
+                            <div class="grid md:grid-cols-2 gap-4 mb-3">
+                                <div class="bg-blue-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Fecha</p>
+                                    <p class="text-sm font-semibold">{{ reserva.fecha|date:"d/m/Y" }}</p>
+                                </div>
+                                <div class="bg-purple-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Horario</p>
+                                    <p class="text-sm font-semibold">{{ reserva.hora_inicio|time:"H:i" }} - {{ reserva.hora_fin|time:"H:i" }}</p>
+                                </div>
+                                <div class="bg-green-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Entrenador</p>
+                                    <p class="text-sm font-semibold">{{ reserva.entrenador.first_name|default:reserva.entrenador.username }}</p>
+                                </div>
+                                <div class="bg-yellow-50 p-3 rounded">
+                                    <p class="text-xs text-gray-600">Estado</p>
+                                    <p class="text-sm font-semibold">
+                                        {% if reserva.estado == 'pendiente' %}
+                                        <span class="text-yellow-700">⏳ Pendiente</span>
+                                        {% elif reserva.estado == 'completada' %}
+                                        <span class="text-green-700">✓ Completada</span>
+                                        {% else %}
+                                        <span class="text-red-700">✗ Cancelada</span>
+                                        {% endif %}
+                                    </p>
+                                </div>
+                            </div>
+
+                            {% if reserva.observaciones %}
+                            <div class="bg-gray-50 p-3 rounded">
+                                <p class="text-xs font-semibold text-gray-700">Observaciones del entrenador:</p>
+                                <p class="text-sm text-gray-600">{{ reserva.observaciones }}</p>
+                            </div>
+                            {% endif %}
+                        </div>
+
+                        {% if reserva.estado == 'pendiente' %}
+                        <div class="ml-4">
+                            <a href="{% url 'cliente_cancelar_reserva' reserva.id %}" class="bg-red-500 text-white px-4 py-2 rounded text-sm hover:bg-red-600 transition whitespace-nowrap">
+                                Cancelar
+                            </a>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="text-6xl mb-4">📅</div>
+                <p class="text-gray-600 text-lg mb-4">No tienes reservas aún</p>
+                <a href="{% url 'cliente_nueva_reserva' %}" class="inline-block bg-blue-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-blue-700 transition">
+                    Crear mi primera reserva
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

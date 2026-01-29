@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ caballo.nombre }} - Equilovers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-green-600">Equilovers</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'dashboard' %}" class="text-gray-700 hover:text-green-600">← Volver</a>
+                    <span class="text-gray-700">Dr. <strong>{{user.first_name|default:user.username}}</strong></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded mb-6">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+            <div class="flex items-start justify-between mb-6">
+                <div>
+                    <h2 class="text-3xl font-bold text-gray-800 mb-2">{{ caballo.nombre }}</h2>
+                    <p class="text-gray-600">{{ caballo.raza|default:"Sin raza especificada" }}</p>
+                </div>
+                <div class="text-6xl">🐴</div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6 mb-6">
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Edad</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.edad }} años</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Color</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.color|default:"N/A" }}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Propietario</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.propietario.first_name|default:caballo.propietario.username }}</p>
+                </div>
+                <div class="bg-green-50 p-4 rounded-lg">
+                    <p class="text-sm text-gray-600 mb-1">Registro</p>
+                    <p class="text-xl font-semibold text-gray-800">{{ caballo.fecha_registro|date:"d/m/Y" }}</p>
+                </div>
+            </div>
+
+            <div class="flex justify-end">
+                <a href="{% url 'control_nuevo' caballo.id %}" class="bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                    ➕ Registrar Control
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-lg shadow-lg p-8">
+            <h3 class="text-2xl font-bold text-gray-800 mb-6">Historial de Controles</h3>
+
+            {% if controles %}
+            <div class="space-y-4">
+                {% for control in controles %}
+                <div class="border border-gray-200 rounded-lg p-6 hover:shadow-md transition">
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <p class="text-lg font-semibold text-gray-800">{{ control.fecha|date:"d/m/Y - H:i" }}</p>
+                            <p class="text-sm text-gray-600">Dr. {{ control.veterinario.first_name|default:control.veterinario.username }}</p>
+                        </div>
+                    </div>
+
+                    <div class="grid md:grid-cols-2 gap-4 mb-4">
+                        <div class="bg-blue-50 p-3 rounded">
+                            <p class="text-xs text-gray-600 mb-1">Peso</p>
+                            <p class="text-lg font-semibold text-gray-800">{{ control.peso }} kg</p>
+                        </div>
+                        <div class="bg-purple-50 p-3 rounded">
+                            <p class="text-xs text-gray-600 mb-1">Condición Corporal</p>
+                            <p class="text-lg font-semibold text-gray-800">{{ control.condicion_corporal }}/9</p>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <p class="text-sm font-semibold text-gray-700 mb-1">Alimentación:</p>
+                        <p class="text-gray-600">{{ control.alimentacion }}</p>
+                    </div>
+
+                    {% if control.observaciones %}
+                    <div class="bg-yellow-50 p-3 rounded">
+                        <p class="text-sm font-semibold text-gray-700 mb-1">Observaciones:</p>
+                        <p class="text-gray-600">{{ control.observaciones }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-12">
+                <div class="text-6xl mb-4">📋</div>
+                <p class="text-gray-600 text-lg mb-4">No hay controles registrados</p>
+                <a href="{% url 'control_nuevo' caballo.id %}" class="inline-block bg-green-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                    Registrar primer control
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</body>
+</html>

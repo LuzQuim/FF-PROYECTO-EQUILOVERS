@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Checklist - {{ caballo.nombre }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-orange-50 to-orange-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-orange-600">Equilovers</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'petisero_caballo_detail' caballo.id %}" class="text-gray-700 hover:text-orange-600">← Cancelar</a>
+                    <span class="text-gray-700"><strong>{{user.first_name|default:user.username}}</strong></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded mb-6">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-lg max-w-2xl mx-auto p-8">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">📝</div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Checklist Diario</h2>
+                <p class="text-xl text-gray-600">{{ caballo.nombre }}</p>
+                <p class="text-sm text-gray-500 mt-2">Fecha: {{ now|date:"d/m/Y" }}</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-6 bg-orange-50 p-4 rounded-lg">
+                    <h3 class="text-lg font-semibold text-gray-800 mb-4">Tareas del día</h3>
+                    
+                    <div class="space-y-3">
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="limpieza_cascos" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Limpieza de cascos</span>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="revision_herraduras" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Revisión de herraduras</span>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="tratamiento_cascos" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Tratamiento de cascos</span>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="aplicacion_aceite" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Aplicación de aceite</span>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="revision_herraje" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Revisión de herraje</span>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="medicacion" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Medicación</span>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="limpieza_heridas" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Limpieza de heridas</span>
+                        </label>
+
+                        <label class="flex items-center space-x-3 cursor-pointer">
+                            <input type="checkbox" name="ejercicios_prescritos" class="w-5 h-5 text-orange-600 rounded focus:ring-orange-500">
+                            <span class="text-gray-700">Ejercicios prescritos</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Observaciones
+                    </label>
+                    <textarea name="observaciones" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500" placeholder="Notas adicionales, anomalías detectadas, recomendaciones..."></textarea>
+                </div>
+
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 mb-6">
+                    <p class="text-sm text-yellow-700">
+                        <strong>Nota:</strong> Solo puedes registrar las tareas una vez por día para cada caballo.
+                    </p>
+                </div>
+
+                <div class="flex gap-4">
+                    <a href="{% url 'petisero_caballo_detail' caballo.id %}" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="flex-1 bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
+                        Guardar Tareas
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

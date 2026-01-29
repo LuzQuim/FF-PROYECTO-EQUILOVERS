@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nuevo Control - {{ caballo.nombre }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-green-600">Equilovers</h1>
+                <div class="flex items-center space-x-4">
+                    <a href="{% url 'caballo_detail' caballo.id %}" class="text-gray-700 hover:text-green-600">← Cancelar</a>
+                    <span class="text-gray-700">Dr. <strong>{{user.first_name|default:user.username}}</strong></span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        {% for message in messages %}
+        <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded mb-6">
+            {{ message }}
+        </div>
+        {% endfor %}
+        {% endif %}
+
+        <div class="bg-white rounded-lg shadow-lg max-w-2xl mx-auto p-8">
+            <div class="text-center mb-8">
+                <div class="text-6xl mb-4">📋</div>
+                <h2 class="text-3xl font-bold text-gray-800 mb-2">Nuevo Control Veterinario</h2>
+                <p class="text-xl text-gray-600">{{ caballo.nombre }}</p>
+            </div>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Peso (kg) <span class="text-red-500">*</span>
+                    </label>
+                    <input type="number" name="peso" step="0.01" min="0" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Ej: 450.50">
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Condición Corporal <span class="text-red-500">*</span>
+                    </label>
+                    <select name="condicion_corporal" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <option value="">Seleccionar...</option>
+                        <option value="1">1 - Extremadamente delgado</option>
+                        <option value="2">2 - Muy delgado</option>
+                        <option value="3">3 - Delgado</option>
+                        <option value="4">4 - Moderadamente delgado</option>
+                        <option value="5">5 - Moderado (Ideal)</option>
+                        <option value="6">6 - Moderadamente carnoso</option>
+                        <option value="7">7 - Carnoso</option>
+                        <option value="8">8 - Gordo</option>
+                        <option value="9">9 - Extremadamente gordo</option>
+                    </select>
+                    <p class="text-xs text-gray-500 mt-1">Escala de 1 a 9</p>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Alimentación <span class="text-red-500">*</span>
+                    </label>
+                    <textarea name="alimentacion" rows="4" required class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Describe el plan de alimentación actual..."></textarea>
+                </div>
+
+                <div class="mb-6">
+                    <label class="block text-gray-700 text-sm font-semibold mb-2">
+                        Observaciones de Salud
+                    </label>
+                    <textarea name="observaciones" rows="4" class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500" placeholder="Observaciones adicionales, síntomas, recomendaciones..."></textarea>
+                </div>
+
+                <div class="flex gap-4">
+                    <a href="{% url 'caballo_detail' caballo.id %}" class="flex-1 bg-gray-300 text-gray-700 py-3 rounded-lg font-semibold hover:bg-gray-400 transition text-center">
+                        Cancelar
+                    </a>
+                    <button type="submit" class="flex-1 bg-green-600 text-white py-3 rounded-lg font-semibold hover:bg-green-700 transition">
+                        Guardar Control
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</body>
+</html>

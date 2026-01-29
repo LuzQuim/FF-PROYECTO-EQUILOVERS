@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Veterinario - Equilovers</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gradient-to-br from-green-50 to-green-100 min-h-screen">
+    <nav class="bg-white shadow-lg">
+        <div class="container mx-auto px-4 py-4">
+            <div class="flex justify-between items-center">
+                <h1 class="text-2xl font-bold text-green-600">Equilovers - Veterinario</h1>
+                <div class="flex items-center space-x-4">
+                    {% if roles.count > 1 %}
+                    <div class="relative">
+                        <select onchange="window.location.href='/cambiar-rol/' + this.value" 
+                                class="bg-gray-100 border border-gray-300 text-gray-700 py-2 px-4 pr-8 rounded leading-tight focus:outline-none focus:bg-white focus:border-green-500">
+                            {% for rol in roles %}
+                            <option value="{{ rol.nombre }}" {% if rol.nombre == rol_activo %}selected{% endif %}>{{ rol.get_nombre_display }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    {% endif %}
+                    <span class="text-gray-700">👋 Dr. <strong>{{user.first_name|default:user.username}}</strong></span>
+                    <form method="POST" action="{% url 'logout' %}" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition">
+                            Cerrar Sesión
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container mx-auto px-4 py-8">
+        {% if messages %}
+        <div class="max-w-7xl mx-auto mb-6">
+            {% for message in messages %}
+            <div class="{% if message.tags == 'error' %}bg-red-100 border-l-4 border-red-500 text-red-700{% else %}bg-green-100 border-l-4 border-green-500 text-green-700{% endif %} p-4 rounded shadow-md">
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="max-w-7xl mx-auto">
+            <div class="bg-white rounded-2xl shadow-2xl p-8">
+                <div class="text-center mb-8">
+                    <div class="inline-block p-4 bg-green-100 rounded-full mb-4">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                        </svg>
+                    </div>
+                    <h1 class="text-4xl font-bold text-gray-800 mb-2">Dashboard Veterinario</h1>
+                    <p class="text-xl text-gray-600">Dr. <span class="font-semibold text-green-600">{{user.first_name|default:user.username}}</span></p>
+                </div>
+
+                <div class="mb-6">
+                    <form method="GET" class="flex gap-2">
+                        <input type="text" name="buscar" value="{{ buscar }}" placeholder="Buscar caballo por nombre, raza o propietario..." class="flex-1 px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <button type="submit" class="bg-green-600 text-white px-8 py-3 rounded-lg hover:bg-green-700 transition font-semibold">Buscar</button>
+                        {% if buscar %}
+                        <a href="{% url 'dashboard' %}" class="bg-gray-300 text-gray-700 px-6 py-3 rounded-lg hover:bg-gray-400 transition font-semibold">Limpiar</a>
+                        {% endif %}
+                    </form>
+                </div>
+
+                <div class="mb-6">
+                    <h2 class="text-2xl font-bold text-gray-800">Caballos Registrados</h2>
+                </div>
+
+                {% if caballos %}
+                <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+                    {% for caballo in caballos %}
+                    <a href="{% url 'caballo_detail' caballo.id %}" class="block bg-gradient-to-br from-green-50 to-white p-6 rounded-lg shadow hover:shadow-xl transition transform hover:-translate-y-1">
+                        <div class="flex items-start justify-between mb-4">
+                            <div>
+                                <h3 class="text-xl font-bold text-gray-800">{{ caballo.nombre }}</h3>
+                                <p class="text-gray-600 text-sm">{{ caballo.raza|default:"Sin raza" }}</p>
+                            </div>
+                            <div class="text-4xl">🐴</div>
+                        </div>
+                        <div class="space-y-2 text-sm">
+                            <p class="text-gray-700"><span class="font-semibold">Edad:</span> {{ caballo.edad }} años</p>
+                            <p class="text-gray-700"><span class="font-semibold">Color:</span> {{ caballo.color|default:"N/A" }}</p>
+                            <p class="text-gray-700"><span class="font-semibold">Propietario:</span> {{ caballo.propietario.first_name|default:caballo.propietario.username }}</p>
+                            <p class="text-gray-700"><span class="font-semibold">Controles:</span> {{ caballo.controles.count }}</p>
+                        </div>
+                        <div class="mt-4 pt-4 border-t border-gray-200">
+                            <span class="text-green-600 font-semibold text-sm">Ver detalles →</span>
+                        </div>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="text-center py-16 mb-8">
+                    <div class="text-8xl mb-6">🐴</div>
+                    <p class="text-gray-600 text-xl mb-2">
+                        {% if buscar %}
+                        No se encontraron caballos con "{{ buscar }}"
+                        {% else %}
+                        No hay caballos registrados
+                        {% endif %}
+                    </p>
+                    {% if buscar %}
+                    <a href="{% url 'dashboard' %}" class="inline-block mt-4 text-green-600 hover:text-green-700 font-semibold">Mostrar todos los caballos</a>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <div class="text-center">
+                    <a href="{% url 'home' %}" class="bg-green-600 text-white px-8 py-3 rounded-lg font-semibold hover:bg-green-700 transition inline-block">
+                        🏠 Ir al Inicio
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
